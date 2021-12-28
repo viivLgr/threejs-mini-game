@@ -1,17 +1,16 @@
 import camera from './camera';
 import light from './light'
 import background from '../objects/background'
-import { canvas } from '../../libs/weapp-adapter';
 
 class Scene {
   constructor() {
     this.instance = null
   }
   init() {
-    this.instance = new THREE.Scene;
+    this.instance = new THREE.Scene();
     const renderer = this.renderer = new THREE.WebGLRenderer({
       canvas: canvas,
-      antilias: true, // 抗？锯齿
+      antialias: true, // 抗？锯齿
       preserveDrawingBuffer: true, // 缓冲区
     })
 
@@ -39,7 +38,6 @@ class Scene {
 
   render() {
     this.renderer.render(this.instance, this.camera.instance)
-    // requestAnimationFrame(this.render.bind(this));
   }
 }
 
