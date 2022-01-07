@@ -10,11 +10,15 @@
 import Tween from './tween';
 
 const customAnimation = exports.customAnimation = {}
-customAnimation.to = function (duration, from, to, type) {
+customAnimation.to = function (duration, from, to, type, delay = 0) {
   for (let prop in to) {
-    TweenAnimation(from[prop], to[prop], duration, type, (to, isEnd) => {
-      from[prop] = to;
-    })
+    setTimeout(function(prop) {
+      return function () {
+        TweenAnimation(from[prop], to[prop], duration, type, (to, isEnd) => {
+          from[prop] = to;
+        })
+      }
+    }(prop), delay * 1000)
   }
 }
 
@@ -40,7 +44,14 @@ function TweenAnimation(from, to, duration, type, callback) {
   const startTime = Date.now()
   let lastTime = startTime;
 
-  const tweenFn = Tween[options.type];
+  const typeList = options.type.split('.');
+  let tweenFn;
+  if (typeList.length === 1) {
+    tweenFn = Tween[typeList[0]];
+  } else if (typeList.length === 2) {
+    tweenFn = Tween[typeList[0]][typeList[1]];
+  }
+
   if (!tweenFn) {
     console.log(`${type} has no tween function`);
     return

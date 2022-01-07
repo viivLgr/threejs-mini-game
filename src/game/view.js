@@ -14,18 +14,19 @@ class GameView {
   initGameOverPage(callbacks) {
     this.gameOverPage = new GameOverPage(callbacks)
     this.gameOverPage.init({
-      scene: this.gamePage.scene
+      scene: this.gamePage.scene.instance,
+      camera: this.gamePage.scene.camera.instance,
     })
   }
 
   showGameOverPage() {
-    this.gamePage.hide()
+    // this.gamePage.hide()
     this.gameOverPage.show()
   }
 
   showGamePage() {
     this.gameOverPage.hide()
-    this.gamePage.retart();
+    this.gamePage.restart();
     this.gamePage.show()
   }
 

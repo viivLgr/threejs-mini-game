@@ -4,5 +4,6 @@ export default {
     y: 0,
     z: 0
   },
-  headRadius: 2.1168
+  headRadius: 2.1168,
+  bodywidth: 3.84,
 }

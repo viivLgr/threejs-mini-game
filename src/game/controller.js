@@ -12,7 +12,7 @@ class GameController {
           this.gameView.showGameOverPage();
           break;
         case 'game':
-          this.gameView.showGameOverPage();
+          this.gameView.showGamePage();
           break;
         default:;
       }
@@ -29,6 +29,7 @@ class GameController {
     const gameOverPageCallbacks = {
       gameRestart: () => {
         this.gameModel.setStage('game')
+        console.log('gameRestart')
       }
     }
 

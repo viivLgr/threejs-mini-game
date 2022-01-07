@@ -5,6 +5,7 @@ import background from '../objects/background'
 class Scene {
   constructor() {
     this.instance = null
+    this.currentScore = null
   }
   init() {
     this.instance = new THREE.Scene();
@@ -36,8 +37,28 @@ class Scene {
     this.camera.instance.add(this.background.instance);
   }
 
+  updateScore(scoreInstance) {
+    if (this.currentScore) {
+      this.camera.instance.remove(this.currentScore);
+    }
+    this.currentScore = scoreInstance;
+    this.camera.instance.add(scoreInstance);
+    scoreInstance.position.x = -20
+    scoreInstance.position.y = 40
+  }
+
   render() {
     this.renderer.render(this.instance, this.camera.instance)
+  }
+
+  updateCameraPosition(position) {
+    this.camera.updatePosition(position);
+    this.light.updatePosition(position)
+  }
+
+  reset() {
+    this.camera.reset();
+    this.light.reset();
   }
 }
 

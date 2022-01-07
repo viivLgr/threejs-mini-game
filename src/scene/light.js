@@ -1,3 +1,4 @@
+import { customAnimation } from '../../libs/animation'
 class Light {
   constructor() {
     this.instances = {}
@@ -25,11 +26,29 @@ class Light {
     shadowLight.shadow.mapSize.width = 1024
     shadowLight.shadow.mapSize.height = 1024
     
-    this.instances.shadowLight = shadowLight;
+    this.instances.shadowLight = this.shadowLight = shadowLight;
     this.instances.ambientLight = ambientLight;
     this.instances.shadowTarget = this.shadowTarget;
   }
 
+  updatePosition(position) {
+    customAnimation.to(0.5, this.shadowTarget.position, {
+      x: position.x,
+      y: position.y,
+      z: position.z
+    })
+
+    customAnimation.to(0.5, this.shadowLight.position, {
+      x: position.x + 10,
+      y: position.y + 30,
+      z: position.z + 20
+    })
+  }
+
+  reset() {
+    this.shadowLight.position.set(10, 30, 20)
+    this.shadowTarget.position.set(0, 0, 0)
+  }
 }
 
 export default new Light()

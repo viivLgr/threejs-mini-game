@@ -15,6 +15,11 @@ class Ground{
     this.instance.rotation.x = -Math.PI / 2
     this.instance.position.y = -16 / 3.2;
   }
+
+  updatePosition(position) {
+    this.instance.position.x = position.x
+    this.instance.position.z = position.z
+  }
 }
 
 export default new Ground()
