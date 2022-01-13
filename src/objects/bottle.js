@@ -2,6 +2,7 @@ import { customAnimation } from '../../libs/animation';
 import bottleConf from '../../confs/bottle-conf'
 import blockConf from '../../confs/block-conf'
 import gameConf from '../../confs/game-conf';
+import audioManager from '../modules/audio-manager';
 
 class Bottle {
   constructor() {
@@ -115,6 +116,7 @@ class Bottle {
   }
 
   showup() {
+    audioManager.init.play();
     customAnimation.to(0.6, this.obj.position, {
       x: bottleConf.initPosition.x,
       y: bottleConf.initPosition.y + blockConf.height / 2,
@@ -232,7 +234,56 @@ class Bottle {
 
   reset() {
     this.stop();
+    this.obj.rotation.x = 0;
+    this.obj.rotation.z = 0;
     this.obj.position.set(bottleConf.initPosition.x, bottleConf.initPosition.y + 30, 0);
+  }
+
+  forerake() { // 前倾
+    this.status = 'forerake';
+    setTimeout(_ => {
+      if (this.direction === 0) {
+        customAnimation.to(1, this.obj.rotation, {
+          z: -Math.PI / 2
+        })
+      } else {
+        customAnimation.to(1, this.obj.rotation, {
+          x: -Math.PI / 2
+        })
+      }
+
+      customAnimation.to(0.4, this.obj.position, {
+        y: -blockConf.height / 2 + 1.2
+      }, null, 250);
+
+    }, 200)
+  }
+
+  hypsokinesis() { // 向后倒
+    this.status = 'hypsokinesis';
+    setTimeout(_ => {
+      if (this.direction === 0) {
+        customAnimation.to(0.8, this.obj.rotation, {
+          z: Math.PI / 2
+        })
+      } else {
+        customAnimation.to(1, this.obj.rotation, {
+          x: Math.PI / 2
+        })
+      }
+
+      setTimeout(() => {
+        customAnimation.to(0.4, this.obj.position, {
+          y: -blockConf.height / 2 + 1.2
+        });
+        customAnimation.to(0.2, this.head.position, {
+          x: 1.125
+        });
+        customAnimation.to(0.2, this.head.position, {
+          x: 0
+        }, null, 0.2)
+      }, 350)
+    }, 200)
   }
 }
 

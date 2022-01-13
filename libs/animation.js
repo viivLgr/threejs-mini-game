@@ -9,6 +9,9 @@
 
 import Tween from './tween';
 
+let animationId = -1;
+let stoppedAnimationId = animationId - 1;
+
 const customAnimation = exports.customAnimation = {}
 customAnimation.to = function (duration, from, to, type, delay = 0) {
   for (let prop in to) {
@@ -32,6 +35,9 @@ customAnimation.to = function (duration, from, to, type, delay = 0) {
  */
 exports.TweenAnimation = TweenAnimation
 function TweenAnimation(from, to, duration, type, callback) {
+
+  const selfAnimationId = ++animationId;
+
   const options = {
     callback: typeof callback === 'function' ? callback : function() {},
     type: type || 'Linear',
@@ -78,14 +84,19 @@ function TweenAnimation(from, to, duration, type, callback) {
 
     // console.log('interval', interval, start, frameCount)
     const value = tweenFn(start, from, to - from, frameCount);
-    if (start <= frameCount) {
+    if (start <= frameCount && selfAnimationId > stoppedAnimationId) {
       options.callback(value); // 每帧
       requestAnimationFrame(step)
-    } else {
+    } else if (start > frameCount && selfAnimationId > stoppedAnimationId){
       // 动画结束
       options.callback(to, true)
     }
   }
 
   step()
+}
+
+exports.stopAllAnimation = stopAllAnimation 
+function stopAllAnimation() {
+  stoppedAnimationId = animationId;
 }

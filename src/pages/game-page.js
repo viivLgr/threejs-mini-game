@@ -8,6 +8,8 @@ import blockConf from '../../confs/block-conf';
 import gameConf from '../../confs/game-conf';
 import utils from '../utils/index';
 import bottleConf from '../../confs/bottle-conf';
+import audioManager from '../modules/audio-manager';
+import { stopAllAnimation } from '../../libs/animation';
 
 const HIT_NEXT_BLOCK_CENTER = 1;
 const HIT_CURRENT_BLOCK = 2;
@@ -23,6 +25,7 @@ export default class GamePage {
     this.targetPosition = {}
     this.checkingHit = false;
     this.score = 0;
+    this.combo = 0;
   }
 
   init() {
@@ -67,6 +70,7 @@ export default class GamePage {
     this.touchStartTime = Date.now();
     this.bottle.shrink();
     this.currentBlock.shrink()
+    audioManager.shrink.play();
   }
 
   touchEndCallback = (event) => {
@@ -79,6 +83,9 @@ export default class GamePage {
     this.hit = this.getHitStatus(this.bottle, this.currentBlock, this.nextBlock, initY);
     this.checkingHit = true
     // this.bottle.stop();
+
+    audioManager.shrink.stop();
+    audioManager.shrink_end.stop();
   }
 
   getHitStatus(bottle, currentBlock, nextBlock, initY) {
@@ -151,12 +158,44 @@ export default class GamePage {
         this.bottle.obj.position.x = this.bottle.destination[0]
         this.bottle.obj.position.z = this.bottle.destination[1]
         if (this.hit === HIT_NEXT_BLOCK_CENTER || this.hit == HIT_NEXT_BLOCK_NORMAL) {
-          this.updateScore(++this.score);
+          if (this.hit === HIT_NEXT_BLOCK_CENTER) {
+            this.combo++;
+            audioManager['combo' + (this.combo <= 8 ? this.combo : '8')].play();
+            this.score += 2 * this.combo;
+            this.updateScore(this.score);
+          } else if (this.hit === HIT_NEXT_BLOCK_NORMAL) {
+            this.combo = 0;
+            audioManager.success.play()
+            this.updateScore(++this.score);
+          }
           this.updateNextBlock()
         }
       } else { // game over
+        this.combo = 0;
         this.removeTouchEvent();
-        this.callbacks.showGameOverPage();
+
+        if (this.hit === GAME_OVER_NEXT_BLOCK_BACK || this.hit === GAME_OVER_CURRENT_BLOCK_BACK) {
+          stopAllAnimation();
+          this.bottle.stop();
+          this.bottle.forerake();
+          audioManager.fall_from_block.play()
+          this.bottle.obj.position.y = blockConf.height / 2;
+          setTimeout(_ => {
+            this.callbacks.showGameOverPage();
+          }, 2000)
+        } else if (this.hit === GAME_OVER_NEXT_BLOCK_FRONT) {
+          stopAllAnimation();
+          this.bottle.stop();
+          this.bottle.hypsokinesis();
+          audioManager.fall_from_block.play()
+          this.bottle.obj.position.y = blockConf.height / 2;
+          setTimeout(_ => {
+            this.callbacks.showGameOverPage();
+          }, 2000)
+        } else {
+          audioManager.fall.play()
+          this.callbacks.showGameOverPage();
+        }
       }
     }
   }
