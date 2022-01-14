@@ -37,7 +37,7 @@ class Scene {
     this.camera.instance.add(this.background.instance);
   }
 
-  updateScore(scoreInstance) {
+  addScore(scoreInstance) {
     if (this.currentScore) {
       this.camera.instance.remove(this.currentScore);
     }

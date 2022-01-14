@@ -32,6 +32,6 @@ export default class Text {
       'size': 6.0,
       'height': 0.1
     })
-    this.instance = new THREE.Mesh(geometry, this.material);
+    this.instance.geometry = geometry;
   }
 }

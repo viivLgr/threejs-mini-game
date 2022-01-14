@@ -83,6 +83,141 @@ class Bottle {
     this.bottle.add(this.human);
     this.bottle.position.y = 2.2
     this.obj.add(this.bottle)
+
+    this.particles = []
+    const whiteParticleMaterial = new THREE.MeshBasicMaterial({
+      map: this.loader.load('res/images/white.png'),
+      alphaTest: 0.5
+    })
+    const greenParticleMaterial = new THREE.MeshBasicMaterial({
+      map: this.loader.load('res/images/green.png'),
+      alphaTest: 0.5
+    })
+
+    const particleGeometry = new THREE.PlaneGeometry(2, 2);
+    for (let i = 0; i < 15; i++) {
+      const particle = new THREE.Mesh(particleGeometry, whiteParticleMaterial);
+      particle.rotation.x = -Math.PI / 4;
+      particle.rotation.y = -Math.PI / 5;
+      particle.rotation.z = -Math.PI / 5;
+      this.particles.push(particle)
+      this.obj.add(particle);
+    }
+    for (let i = 0; i < 5; i++) {
+      const particle = new THREE.Mesh(particleGeometry, greenParticleMaterial);
+      particle.rotation.x = -Math.PI / 4;
+      particle.rotation.y = -Math.PI / 5;
+      particle.rotation.z = -Math.PI / 5;
+      this.particles.push(particle)
+      this.obj.add(particle);
+    }
+  }
+
+  resetParticles() {
+    if (this.gatherTimer) {
+      clearTimeout(this.gatherTimer);
+    }
+    this.gatherTimer = null;
+
+    for (let i = 0; i < this.particles.length; i++) {
+      const particle = this.particles[i];
+      particle.gathering = false;
+      particle.scattering = false;
+      particle.visible = false;
+    }
+  }
+
+  scatterParticles() { // 
+    for (let i = 0; i < 10; i++) {
+      const particle = this.particles[i];
+      particle.scattering = true;
+      particle.gathering = false;
+      this._scatterParticle(particle);
+    }
+  }
+
+  _scatterParticle(particle) {
+    const minDistance = bottleConf.bodywidth / 2;
+    const maxDistance = 2;
+    const x = (minDistance + Math.random() * (maxDistance - minDistance)) * (1 - 2 * Math.random());
+    const z = (minDistance + Math.random() * (maxDistance - minDistance)) * (1 - 2 * Math.random());
+
+    particle.scale.set(1, 1, 1);
+    particle.visible = false;
+    particle.position.x = x;
+    particle.position.y = -0.5;
+    particle.position.z = z;
+
+    setTimeout(((particle) => {
+      return () => {
+        if (!particle.scattering) return
+        particle.visible = true;
+        const duration = 0.3 + Math.random() * 0.2;
+        customAnimation.to(duration, particle.scale, {
+          x: 0.2,
+          y: 0.2,
+          z: 0.2,
+        })
+        customAnimation.to(duration, particle.position, {
+          x: 2 * x,
+          y: 2 + Math.random() * 2.5,
+          z: 2 * z,
+        }, null, null, () => {
+          particle.scattering = false;
+          particle.visible = false;
+        })
+      }
+    })(particle), Math.random() * 500);
+  }
+
+  gatherParticles() { // 聚集粒子
+    for (let i = 10; i < 20; i++) {
+      this.particles[i].gathering = true;
+      this.particles[i].scattering = false;
+      this._gatherParticle(this.particles[i])
+    }
+
+    this.gatherTimer = setTimeout(() => {
+      for (let i = 0; i < 10; i++) {
+        this.particles[i].gathering = true;
+        this.particles[i].scattering = false;
+        this._gatherParticle(this.particles[i])
+      }
+    }, 500 + 1000 * Math.random());
+  }
+
+  _gatherParticle(particle) {
+    const minDistance = 1;
+    const maxDistance = 8;
+    particle.scale.set(1, 1, 1);
+    particle.visible = false;
+    const x = Math.random() > 0.5 ? 1 : -1;
+    const z =  Math.random() > 0.5 ? 1 : -1;
+    particle.position.x = (minDistance + (maxDistance - minDistance) * Math.random()) * x; 
+    particle.position.y = minDistance + (maxDistance - minDistance) * Math.random();
+    particle.position.z = (minDistance + (maxDistance - minDistance) * Math.random()) * z;
+
+    setTimeout(((particle) => {
+      return () => {
+        if (!particle.gathering) return
+        particle.visible = true;
+        const duration = 0.5 + Math.random() * 0.4;
+        customAnimation.to(duration, particle.scale, {
+          x: 0.8 + Math.random(),
+          y: 0.8 + Math.random(),
+          z: 0.8 + Math.random(),
+        })
+        customAnimation.to(duration, particle.position, {
+          x: Math.random() * x,
+          y: Math.random() * 2.5,
+          z: Math.random() * z,
+        }, null, null, () => {
+          if (particle.gathering) {
+            this._gatherParticle(particle)
+          }
+        })
+      }
+    })(particle), Math.random() * 500);
   }
 
   loadTexture() {
@@ -152,6 +287,7 @@ class Bottle {
 
   shrink() {
     this.status = 'shrink';
+    this.gatherParticles();
   }
 
   _jump(tickTime) {
@@ -170,6 +306,7 @@ class Bottle {
     this.velocity.vy = Math.min(150 + duration / 20, 400)
     this.velocity.vy = +this.velocity.vy.toFixed(2);
     this.status = 'jump'
+    this.resetParticles();
   }
 
   stop() {
@@ -285,6 +422,9 @@ class Bottle {
       }, 350)
     }, 200)
   }
+
+
+
 }
 
 export default new Bottle()

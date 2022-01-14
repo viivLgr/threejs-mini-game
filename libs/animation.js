@@ -13,12 +13,15 @@ let animationId = -1;
 let stoppedAnimationId = animationId - 1;
 
 const customAnimation = exports.customAnimation = {}
-customAnimation.to = function (duration, from, to, type, delay = 0) {
+customAnimation.to = function (duration, from, to, type, delay = 0, complateCallback) {
   for (let prop in to) {
     setTimeout(function(prop) {
       return function () {
         TweenAnimation(from[prop], to[prop], duration, type, (to, isEnd) => {
           from[prop] = to;
+          if (isEnd && complateCallback && typeof complateCallback === 'function') {
+            complateCallback(to);
+          }
         })
       }
     }(prop), delay * 1000)

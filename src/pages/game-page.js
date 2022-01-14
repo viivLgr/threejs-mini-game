@@ -48,15 +48,15 @@ export default class GamePage {
   }
 
   addScore() {
-    this.scene.updateScore(this.scoreText.instance);
+    this.scene.addScore(this.scoreText.instance);
   }
 
   updateScore(score) {
     this.scoreText.updateScore(score)
-    this.scene.updateScore(this.scoreText.instance);
   }
 
   bindTouchEvent() {
+    console.log('bindTouchEvent')
     canvas.addEventListener('touchstart', this.touchStartCallback)
     canvas.addEventListener('touchend', this.touchEndCallback)
   }
@@ -67,6 +67,7 @@ export default class GamePage {
   }
 
   touchStartCallback = (event) => {
+    console.log('touch start')
     this.touchStartTime = Date.now();
     this.bottle.shrink();
     this.currentBlock.shrink()
@@ -74,6 +75,7 @@ export default class GamePage {
   }
 
   touchEndCallback = (event) => {
+    console.log('touch end')
     this.touchEndTime = Date.now();
     const duration = this.touchEndTime - this.touchStartTime;
     this.currentBlock.rebound();
@@ -150,7 +152,7 @@ export default class GamePage {
 
   checkBottleHit() {
     if (this.bottle.obj.position.y <= blockConf.height / 2 && this.bottle.status === 'jump' && this.bottle.flyingTime >= 0.3) {
-      this.checkingHit = false
+      this.checkingHit = true
       console.log('this.hit', this.hit);
       if (this.hit === HIT_NEXT_BLOCK_CENTER || this.hit == HIT_NEXT_BLOCK_NORMAL || this.hit === HIT_CURRENT_BLOCK) {
         this.bottle.stop()
@@ -196,7 +198,10 @@ export default class GamePage {
           audioManager.fall.play()
           this.callbacks.showGameOverPage();
         }
+
+        this.checkingHit = false
       }
+      this.bottle.scatterParticles();
     }
   }
 
