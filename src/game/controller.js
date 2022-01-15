@@ -20,6 +20,11 @@ class GameController {
   }
 
   initPages() {
+    const startPageCallbacks = {
+      gameRestart: () => {
+        this.gameModel.setStage('game')
+      }
+    }
     const gamePageCallbacks = {
       showGameOverPage: () => {
         this.gameModel.setStage('game-over')
@@ -33,6 +38,7 @@ class GameController {
     }
 
     this.gameView.initGamePage(gamePageCallbacks);
+    this.gameView.initStartPage(startPageCallbacks);
     this.gameView.initGameOverPage(gameOverPageCallbacks);
   }
 }

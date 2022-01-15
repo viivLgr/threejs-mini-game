@@ -48,7 +48,6 @@ export default class GamePage {
     this.addGround()
     this.addBottle()
     this.addScore();
-    this.bindTouchEvent()
     this.render()
   }
 

@@ -1,5 +1,6 @@
 import GamePage from '../pages/game-page'
 import GameOverPage from '../pages/game-over-page'
+import StartPage from '../pages/start-page'
 
 class GameView {
   constructor() {
@@ -11,6 +12,13 @@ class GameView {
     this.gamePage.init();
   }
 
+  initStartPage(callbacks) {
+    this.startPage = new StartPage(callbacks)
+    this.startPage.init({
+      camera: this.gamePage.scene.camera.instance
+    })
+  }
+
   initGameOverPage(callbacks) {
     this.gameOverPage = new GameOverPage(callbacks)
     this.gameOverPage.init({
@@ -20,12 +28,13 @@ class GameView {
   }
 
   showGameOverPage() {
-    // this.gamePage.hide()
+    this.gamePage.hide()
     this.gameOverPage.show()
   }
 
   showGamePage() {
     this.gameOverPage.hide()
+    this.startPage.hide();
     this.gamePage.restart();
     this.gamePage.show()
   }
