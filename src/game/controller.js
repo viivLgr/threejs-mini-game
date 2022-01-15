@@ -29,7 +29,6 @@ class GameController {
     const gameOverPageCallbacks = {
       gameRestart: () => {
         this.gameModel.setStage('game')
-        console.log('gameRestart')
       }
     }
 

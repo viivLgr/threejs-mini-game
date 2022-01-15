@@ -1,8 +1,12 @@
-import { customAnimation } from '../../libs/animation';
+import { 
+  customAnimation,
+  TweenAnimation,
+} from '../../libs/animation';
 import bottleConf from '../../confs/bottle-conf'
 import blockConf from '../../confs/block-conf'
 import gameConf from '../../confs/game-conf';
 import audioManager from '../modules/audio-manager';
+import ScoreText from '../view3d/scoreText';
 
 class Bottle {
   constructor() {
@@ -111,6 +115,36 @@ class Bottle {
       this.particles.push(particle)
       this.obj.add(particle);
     }
+
+
+    this.scoreText = new ScoreText()
+    this.scoreText.init({
+      fillStyle: 0x252525,
+    })
+    this.scoreText.instance.visible = false;
+    this.scoreText.instance.rotation.y = -Math.PI / 4;
+    this.scoreText.instance.scale.set(0.5, 0.5, 0.5);
+    this.obj.add(this.scoreText.instance);
+  }
+
+  showAddScore(score) {
+    const value = '+' + score;
+    this.scoreText.updateScore(value);
+    this.scoreText.instance.visible = true;
+    this.scoreText.instance.position.y = 3;
+    this.scoreText.instance.material.opacity = 1;
+
+    customAnimation.to(0.7, this.scoreText.instance.position, {
+      y: blockConf.height + 6
+    })
+
+    TweenAnimation(this.scoreText.instance.material.opacity, 0, 0.7, null, (to, isEnd) =>{
+      this.scoreText.instance.material.opacity = to;
+      if (isEnd) {
+        this.scoreText.instance.visible = false;
+      }
+    })
+
   }
 
   resetParticles() {
@@ -260,7 +294,6 @@ class Bottle {
   }
 
   setDirection(direction, axis) {
-    console.log('setDirection', direction, axis);
     this.direction = direction
     this.axis = axis
   }

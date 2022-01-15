@@ -3,8 +3,6 @@ export default class GameOverPage {
     this.callbacks = callbacks;
   }
   init(options) {
-    console.log('game over page init ')
-    console.log('game over page init', document);
     this.initGameCanvas(options)
   }
 
@@ -39,11 +37,9 @@ export default class GameOverPage {
   }
 
   show() {
-    console.log('game over page show')
     this.obj.visible = true
   }
   hide() {
-    console.log('game over page hide')
     this.obj.visible = false
   }
 }

@@ -85,7 +85,6 @@ function TweenAnimation(from, to, duration, type, callback) {
       start = start + _start;
     }
 
-    // console.log('interval', interval, start, frameCount)
     const value = tweenFn(start, from, to - from, frameCount);
     if (start <= frameCount && selfAnimationId > stoppedAnimationId) {
       options.callback(value); // 每帧

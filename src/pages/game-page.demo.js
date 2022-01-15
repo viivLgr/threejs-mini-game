@@ -4,7 +4,6 @@ export default class GamePage {
   }
 
   init() {
-    console.log('game-page init');
     var width = window.innerWidth
     var height = window.innerHeight
 
@@ -77,12 +76,10 @@ export default class GamePage {
   }
 
   show() {
-    console.log('game-page show');
     this.mesh.visible = true
   }
 
   hide() {
-    console.log('game-page hide')
     this.mesh.visible = false
   }
 

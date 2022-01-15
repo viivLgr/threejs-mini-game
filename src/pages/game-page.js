@@ -9,6 +9,7 @@ import gameConf from '../../confs/game-conf';
 import utils from '../utils/index';
 import bottleConf from '../../confs/bottle-conf';
 import audioManager from '../modules/audio-manager';
+import tailSystem from '../objects/tail';
 import { stopAllAnimation } from '../../libs/animation';
 
 const HIT_NEXT_BLOCK_CENTER = 1;
@@ -26,16 +27,20 @@ export default class GamePage {
     this.checkingHit = false;
     this.score = 0;
     this.combo = 0;
+    this.now = Date.now()
+    this.lastFrameTime = Date.now();
   }
 
   init() {
     this.scene = scene;
     this.ground = ground;
     this.bottle = bottle;
+    this.tailSystem = tailSystem;
     this.scoreText = new ScoreText()
     this.scene.init()
     this.ground.init()
     this.bottle.init()
+    this.tailSystem.init(this.scene.instance, this.bottle);
     this.scoreText.init({
       fillStyle: 0x666699 
     })
@@ -56,7 +61,6 @@ export default class GamePage {
   }
 
   bindTouchEvent() {
-    console.log('bindTouchEvent')
     canvas.addEventListener('touchstart', this.touchStartCallback)
     canvas.addEventListener('touchend', this.touchEndCallback)
   }
@@ -67,7 +71,6 @@ export default class GamePage {
   }
 
   touchStartCallback = (event) => {
-    console.log('touch start')
     this.touchStartTime = Date.now();
     this.bottle.shrink();
     this.currentBlock.shrink()
@@ -75,7 +78,6 @@ export default class GamePage {
   }
 
   touchEndCallback = (event) => {
-    console.log('touch end')
     this.touchEndTime = Date.now();
     const duration = this.touchEndTime - this.touchStartTime;
     this.currentBlock.rebound();
@@ -145,15 +147,12 @@ export default class GamePage {
       }
     }
 
-    console.log('result1', result1)
-    console.log('result2', result2)
     return result1 || result2 || 0
   }
 
   checkBottleHit() {
     if (this.bottle.obj.position.y <= blockConf.height / 2 && this.bottle.status === 'jump' && this.bottle.flyingTime >= 0.3) {
       this.checkingHit = true
-      console.log('this.hit', this.hit);
       if (this.hit === HIT_NEXT_BLOCK_CENTER || this.hit == HIT_NEXT_BLOCK_NORMAL || this.hit === HIT_CURRENT_BLOCK) {
         this.bottle.stop()
         this.bottle.obj.position.y = blockConf.height / 2
@@ -163,11 +162,14 @@ export default class GamePage {
           if (this.hit === HIT_NEXT_BLOCK_CENTER) {
             this.combo++;
             audioManager['combo' + (this.combo <= 8 ? this.combo : '8')].play();
-            this.score += 2 * this.combo;
+            const addScore = 2 * this.combo
+            this.score += addScore;
+            this.bottle.showAddScore(addScore);
             this.updateScore(this.score);
           } else if (this.hit === HIT_NEXT_BLOCK_NORMAL) {
-            this.combo = 0;
             audioManager.success.play()
+            this.combo = 0;
+            this.bottle.showAddScore(1);
             this.updateScore(++this.score);
           }
           this.updateNextBlock()
@@ -231,8 +233,6 @@ export default class GamePage {
       this.nextBlock = new Cylinder(targetPosition.x, targetPosition.y, targetPosition.z, width)
     }
     this.scene.instance.add(this.nextBlock.instance);
-    console.log('currentBlock', this.currentBlock)
-    console.log('nextBlock', type, targetPosition, this.nextBlock)
     const cameraTargetPosition = {
       x: (this.currentBlock.instance.position.x + this.nextBlock.instance.position.x) / 2,
       y: (this.currentBlock.instance.position.y + this.nextBlock.instance.position.y) / 2,
@@ -253,6 +253,8 @@ export default class GamePage {
   }
 
   render() {
+    this.now = Date.now();
+    const tickTime = this.now - this.lastFrameTime;
     this.scene.render();
 
     if (this.currentBlock) {
@@ -269,7 +271,11 @@ export default class GamePage {
     if (this.visible) {
       this.scene.render();
     }
-    
+
+    if (this.tailSystem) {
+      this.tailSystem.update(tickTime);
+    }
+    this.lastFrameTime = Date.now();
     requestAnimationFrame(this.render.bind(this))
   }
 
