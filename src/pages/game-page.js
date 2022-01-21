@@ -177,27 +177,36 @@ export default class GamePage {
         this.combo = 0;
         this.removeTouchEvent();
 
+        stopAllAnimation();
+        this.bottle.stop();
+
         if (this.hit === GAME_OVER_NEXT_BLOCK_BACK || this.hit === GAME_OVER_CURRENT_BLOCK_BACK) {
-          stopAllAnimation();
-          this.bottle.stop();
+          
           this.bottle.forerake();
           audioManager.fall_from_block.play()
           this.bottle.obj.position.y = blockConf.height / 2;
           setTimeout(_ => {
+            this.uploadScore()
             this.callbacks.showGameOverPage();
           }, 2000)
         } else if (this.hit === GAME_OVER_NEXT_BLOCK_FRONT) {
-          stopAllAnimation();
-          this.bottle.stop();
+          
           this.bottle.hypsokinesis();
           audioManager.fall_from_block.play()
           this.bottle.obj.position.y = blockConf.height / 2;
           setTimeout(_ => {
+            this.uploadScore()
             this.callbacks.showGameOverPage();
           }, 2000)
         } else {
+          this.bottle.stop()
+          this.bottle.straight()
           audioManager.fall.play()
-          this.callbacks.showGameOverPage();
+          this.bottle.obj.position.y = blockConf.height / 2;
+          setTimeout(_ => {
+            this.updateScore()
+            this.callbacks.showGameOverPage();
+          }, 2000)
         }
 
         this.checkingHit = false
@@ -276,6 +285,16 @@ export default class GamePage {
     }
     this.lastFrameTime = Date.now();
     requestAnimationFrame(this.render.bind(this))
+  }
+  
+  uploadScore() {
+    const openDataContext = wx.getOpenDataContext()
+    openDataContext.postMessage({
+      type: 'updateMaxScore',
+      score: this.score
+    })
+
+    this.score = 0;
   }
 
   addInitBlock() {

@@ -456,6 +456,14 @@ class Bottle {
     }, 200)
   }
 
+  straight () {
+    this.status = 'straight'
+    setTimeout( () => {
+      customAnimation.to(0.4, this.obj.position, {
+        y: -blockConf.height / 2 + 1.2
+      }, 'Linear')
+    })
+  }
 
 
 }
